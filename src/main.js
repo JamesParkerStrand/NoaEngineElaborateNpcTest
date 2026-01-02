@@ -14,7 +14,7 @@ import { createEntity, raycastEntitiesBabylon } from "./entityfunctions";
 import { npcSequenceHandler } from "./npcSequences";
 import { makeMesh } from "./loadMesh";
 import * as BABYLON from "@babylonjs/core";
-import { npcConditionContinue,npcTextIndexToGameInstructions } from './npcGoalStates'; 
+import { npcConditionContinue,npcTextIndexToGameInstructions,npcTextIndexArgs } from './npcGoalStates'; 
 import {getDirection3D, degToRad,radiansToDegrees} from "./utility";
 
 // --- Bottom screen text UI (click-through) ---
@@ -98,15 +98,14 @@ const scene = noa.rendering.getScene()
 var citizen = null;
 var fullyLoaded = false;
 var meshPlayer = null;
-var teleporterActive = new Map();
+var teleporterActive = null;
 //mesh name, actual mesh.
-teleporterActive.set('teleportActive', null);
 
 // load our custom meshes as initialization.
 noa.once('tick', async () => {
   const teleporterProp = await makeMesh(noa, 'teleporter_inactive', 'teleporter_inactive.obj');
   const teleporterActiveMesh = await makeMesh(noa, 'teleporter_active', 'teleporter_active.obj');
-  teleporterActive.set('teleportActive', teleporterActiveMesh);
+  teleporterActive = teleporterActiveMesh;
   const npc = await makeMesh(noa, 'friendnpc', 'generic_felari.obj');
   const playerMesh = await makeMesh(noa,'playerNpc','james.obj');
 
@@ -126,6 +125,9 @@ meshPlayer = meshData.mesh;
   teleporterMesh.mesh.scaling.setAll(6);
   citizen = createEntity(noa, 300, 87, 640, npc)
   noa.entities.setPosition(citizen, [233,87,535]);
+
+  // defining arguements
+  npcTextIndexArgs.set(3,[3,teleporterActiveMesh]);
   fullyLoaded = true;
 });
 
@@ -163,6 +165,7 @@ noa.on('tick', async () => {
     const GameChanges = npcTextIndexToGameInstructions.get(npcState.currentNpcText);
     if(GameChanges) {
       // process mesh changes.
+      /*
       if(GameChanges.MeshesToChange) {
         //console.log(GameChanges.MeshesToChange);
         for(const meshChange of GameChanges.MeshesToChange) {
@@ -179,7 +182,11 @@ noa.on('tick', async () => {
         });
         noa.entities.getMeshData(meshId).mesh.scaling.setAll(6);
       }
-    }
+        */
+      const changeFunction = GameChanges;
+      if(typeof(changeFunction) === 'function') {
+        changeFunction(noa,npcTextIndexArgs.get(npcState.currentNpcText));
+      }
     }
     const cam = noa.camera;
 
