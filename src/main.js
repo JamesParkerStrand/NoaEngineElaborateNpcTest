@@ -164,25 +164,6 @@ noa.on('tick', async () => {
 
     const GameChanges = npcTextIndexToGameInstructions.get(npcState.currentNpcText);
     if(GameChanges) {
-      // process mesh changes.
-      /*
-      if(GameChanges.MeshesToChange) {
-        //console.log(GameChanges.MeshesToChange);
-        for(const meshChange of GameChanges.MeshesToChange) {
-          const meshId = meshChange[0];
-          const newMeshName = meshChange[1];
-          const entityMeshData = noa.entities.getMeshData(meshId);
-          const newMesh = teleporterActive.get(newMeshName);
-          noa.entities.addComponentAgain(meshId, noa.entities.names.mesh, {
-            mesh: newMesh,
-            // offset vector is needed because noa positions are always the 
-            // bottom-center of the entity, and Babylon's CreateBox gives a 
-            // mesh registered at the center of the box
-            offset: [0, 0, 0],
-        });
-        noa.entities.getMeshData(meshId).mesh.scaling.setAll(6);
-      }
-        */
       const changeFunction = GameChanges;
       if(typeof(changeFunction) === 'function') {
         changeFunction(noa,npcTextIndexArgs.get(npcState.currentNpcText));
